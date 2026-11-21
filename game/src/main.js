@@ -173,6 +173,9 @@ function runDemo(nowMs) {
       player.x = 3.5 * 40;
       player.y = 10.75 * 40;
     }
+    // In demo mode the meter fills fast so the alarm triggers on screen within
+    // the virtual-time budget.
+    detection = Math.min(100, Math.max(detection, 100));
   } else if (SHOT === 'win') {
     // Teleport near the exit and step in.
     if (demoT > 1.0) { player.x = world.exit.x + 20; player.y = world.exit.y + 40; }
