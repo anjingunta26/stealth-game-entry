@@ -1,25 +1,25 @@
-// Entry program for the make.fun stealth-game bounty. Node 22, standard library only.
-// It hands in this repository's game/ and screenshots/ and writes the judge's dossier.
-// Outside the grader, MAKEFUN_OUTPUT_DIR stands in for /output.
+// make.fun entry program: package the game and write the judge's dossier.
+// Node 22, standard library only. Outside the grader, MAKEFUN_OUTPUT_DIR
+// replaces the /output path the sealed runner uses.
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-game.ts';
 
-const here = fileURLToPath(new URL('.', import.meta.url));
-const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const repo = fileURLToPath(new URL('.', import.meta.url));
+const dest = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-mkdirSync(out, { recursive: true });
-cpSync(join(here, 'game'), join(out, 'game'), { recursive: true });
-mkdirSync(join(out, 'screenshots'), { recursive: true });
-const shots = join(here, 'screenshots');
-if (existsSync(shots)) cpSync(shots, join(out, 'screenshots'), { recursive: true });
+mkdirSync(dest, { recursive: true });
+cpSync(join(repo, 'game'), join(dest, 'game'), { recursive: true });
+mkdirSync(join(dest, 'screenshots'), { recursive: true });
+const shotDir = join(repo, 'screenshots');
+if (existsSync(shotDir)) cpSync(shotDir, join(dest, 'screenshots'), { recursive: true });
 
-// Local mirror of the sealed scorer's caps, so a too-big entry fails here first:
-// dossier text 160 KiB, at most 4 screenshots of 256 KiB, game/ at most 993
-// files / 48 MiB with paths under 1000 bytes.
-writeFileSync(join(out, 'dossier.json'), buildDossier(out, {
+// Same ceilings the sealed scorer enforces, applied up front: dossier text
+// capped at 160 KiB, four screenshots of 256 KiB each, and game/ limited to
+// 993 files, 48 MiB total, and 1000-byte paths.
+writeFileSync(join(dest, 'dossier.json'), buildDossier(dest, {
   text_max_bytes: 163840,
   screenshots: { max: 4, max_bytes: 262144 },
   game_max_files: 993,
